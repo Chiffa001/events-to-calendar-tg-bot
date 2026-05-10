@@ -1,0 +1,7 @@
+node_modules/
+dist/
+
+.env
+
+credentials/token.json
+credentials/google_credentials.json
