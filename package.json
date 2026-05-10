@@ -2,9 +2,14 @@
   "name": "tg-calendar-ai",
   "version": "0.1.0",
   "description": "Telegram bot with AI-powered event parsing and Google Calendar integration",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register src/index.ts",
     "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
+    "build": "ts-node -r tsconfig-paths/register scripts/build.ts",
+    "start:prod": "node dist/index.js",
     "typecheck": "tsc --noEmit",
     "lint": "biome check src/",
     "lint:fix": "biome check --write src/",
@@ -30,10 +35,12 @@
   "devDependencies": {
     "@biomejs/biome": "^2.4.15",
     "@types/node": "^22.15.18",
+    "esbuild": "^0.28.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.4",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
+    "tsc-alias": "^1.8.17",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3"
   }

@@ -24,4 +24,4 @@ async function main() {
   logger.info("Bot started");
 }
 
-main().catch(console.error);
+main().catch((err) => logger.error("Failed to start bot", err));

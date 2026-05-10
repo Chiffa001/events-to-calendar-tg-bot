@@ -115,8 +115,12 @@ ALLOWED_USER_IDS=123456789,987654321
 ## Запуск
 
 ```bash
-make run      # production
-make dev      # с hot reload
+# Разработка (hot reload, ts-node)
+npm run dev
+
+# Продакшн (компиляция + запуск собранного бандла)
+npm run build
+npm run start:prod
 ```
 
 ## Структура проекта
