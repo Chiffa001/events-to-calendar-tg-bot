@@ -9,7 +9,14 @@
     "lint": "biome check src/",
     "lint:fix": "biome check --write src/",
     "format": "biome format --write src/",
-    "auth": "ts-node -r tsconfig-paths/register scripts/auth.ts"
+    "auth": "ts-node -r tsconfig-paths/register scripts/auth.ts",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "biome check --write",
+      "biome format --write"
+    ]
   },
   "dependencies": {
     "dotenv": "^16.5.0",
@@ -23,6 +30,8 @@
   "devDependencies": {
     "@biomejs/biome": "^2.4.15",
     "@types/node": "^22.15.18",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.4",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",
