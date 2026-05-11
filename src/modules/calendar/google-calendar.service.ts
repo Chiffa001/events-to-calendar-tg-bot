@@ -54,8 +54,14 @@ export class GoogleCalendarService implements ICalendarService {
           summary: event.title,
           description: buildDescription(event.description, event.meeting_url),
           location: event.location ?? event.meeting_url ?? undefined,
-          start: { dateTime: event.start_datetime.toISOString(), timeZone: event.timezone },
-          end: { dateTime: event.end_datetime.toISOString(), timeZone: event.timezone },
+          start: {
+            dateTime: event.start_datetime.toISOString().slice(0, 19),
+            timeZone: event.timezone,
+          },
+          end: {
+            dateTime: event.end_datetime.toISOString().slice(0, 19),
+            timeZone: event.timezone,
+          },
         },
       });
       return data.htmlLink ?? "";

@@ -23,15 +23,11 @@ export class BotHandler implements IBotHandler {
     bot.command("start", (ctx) =>
       ctx.reply(
         "Привет! Отправь мне описание мероприятия, и я добавлю его в Google Календарь.\n\n" +
-          "Я понимаю любой формат — просто опиши событие своими словами. " +
-          "Место встречи может быть:\n" +
-          "• текстом — «кафе Ромашка, ул. Ленина 5»\n" +
-          "• ссылкой на Google Maps\n" +
-          "• ссылкой на звонок (Google Meet, Zoom, Teams и др.)\n\n" +
+          "Я понимаю любой формат — просто опиши событие своими словами.\n\n" +
           "Примеры:\n" +
           "«Встреча с командой завтра в 15:00, конференц-зал A»\n" +
-          "«Созвон в пятницу в 11:00 https://meet.google.com/xxx-yyyy-zzz»\n" +
-          "«Вебинар 20 мая в 19:00, описание: про стартапы, https://zoom.us/j/123456»",
+          "«Созвон в пятницу в 11:00 по берлинскому времени https://meet.google.com/xxx-yyyy-zzz»\n" +
+          "«Вебинар 20 мая в 19:00 по Польше, https://zoom.us/j/123456»",
         { parse_mode: "HTML" },
       ),
     );
@@ -39,11 +35,13 @@ export class BotHandler implements IBotHandler {
     bot.command("help", (ctx) =>
       ctx.reply(
         "Напиши описание события в свободной форме — я распознаю название, дату, время и место.\n\n" +
-          "<b>Поддерживаемые форматы места:</b>\n" +
+          "<b>Место встречи:</b>\n" +
           "• Текстовый адрес: «ул. Пушкина, д. 10»\n" +
           "• Ссылка Google Maps\n" +
           "• Ссылка на онлайн-встречу: Google Meet, Zoom, Teams, Webex и др.\n\n" +
-          "Можно указать и физическое место, и ссылку на звонок одновременно.",
+          "<b>Часовой пояс:</b>\n" +
+          `• По умолчанию используется ${this.config.defaultTimezone}\n` +
+          "• Можно указать в сообщении: «по Берлину», «по МСК», «по Аргентине», «по Польше»",
         { parse_mode: "HTML" },
       ),
     );
@@ -69,7 +67,7 @@ export class BotHandler implements IBotHandler {
 
         const fmt = (d: Date) =>
           d.toLocaleString("ru-RU", {
-            timeZone: event.timezone,
+            timeZone: "UTC",
             day: "2-digit",
             month: "2-digit",
             year: "numeric",
@@ -77,11 +75,16 @@ export class BotHandler implements IBotHandler {
             minute: "2-digit",
           });
 
+        const tzSuffix =
+          event.timezone !== this.config.defaultTimezone
+            ? ` (${new Intl.DateTimeFormat("ru-RU", { timeZone: event.timezone, timeZoneName: "short" }).formatToParts(new Date()).find((p) => p.type === "timeZoneName")?.value ?? event.timezone})`
+            : "";
+
         let text =
           `Событие добавлено в календарь!\n\n` +
           `<b>${event.title}</b>\n` +
-          `Начало: ${fmt(event.start_datetime)}\n` +
-          `Конец: ${fmt(event.end_datetime)}`;
+          `Начало: ${fmt(event.start_datetime)}${tzSuffix}\n` +
+          `Конец: ${fmt(event.end_datetime)}${tzSuffix}`;
         if (event.location) {
           text += `\nМесто: ${event.location}`;
         }

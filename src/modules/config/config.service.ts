@@ -51,6 +51,10 @@ export class ConfigService implements IConfigService {
     return this.env.GOOGLE_CALENDAR_ID;
   }
 
+  get defaultTimezone(): string {
+    return this.env.DEFAULT_TIMEZONE;
+  }
+
   get allowedUserIds(): Set<number> {
     return this._allowedUserIds;
   }

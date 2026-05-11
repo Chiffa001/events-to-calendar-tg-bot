@@ -1,12 +1,14 @@
 import { inject, injectable } from "inversify";
 import { NotAnEventError } from "@/errors/not-an-event.error";
+import type { IConfigService } from "@/modules/config";
 import type { ICalendarEvent, IEventFactory } from "@/modules/event";
 import type { ILLMClient } from "@/modules/llm";
 import type { ILogger } from "@/modules/logger";
 import { TOKENS } from "@/tokens";
 import type { IAIParser } from "./ai-parser.interface";
 
-const SYSTEM_PROMPT = `You are an assistant that extracts calendar event information from text messages.
+function buildSystemPrompt(defaultTimezone: string): string {
+  return `You are an assistant that extracts calendar event information from text messages.
 
 First, decide if the message describes a calendar event (meeting, appointment, call, reminder, deadline, etc.).
 Always include the field:
@@ -21,7 +23,12 @@ If is_event is true, also include:
 - end_datetime (string, required): ISO 8601 format
 - location (string, optional): physical location — either a plain text address (e.g. "кафе Ромашка, ул. Ленина 5") OR a Google Maps URL; if both are present, use ONLY the URL
 - meeting_url (string, optional): online meeting link — any URL for a video call (meet.google.com, zoom.us, teams.microsoft.com, webex.com, etc.)
-- timezone (string, default "Europe/Moscow"): IANA timezone name
+- timezone (string): IANA timezone name — default is "${defaultTimezone}" unless the message specifies otherwise
+
+Rules for timezone:
+- Use the default timezone "${defaultTimezone}" unless the message explicitly mentions a different one
+- The timezone can be specified as a city name ("по Берлину", "по Москве"), country ("по Аргентине", "по Польше"), abbreviation ("MSK", "CET"), or IANA name ("Europe/Warsaw")
+- Convert any city/country/abbreviation to a valid IANA timezone (e.g. "Варшава" → "Europe/Warsaw", "Аргентина" → "America/Argentina/Buenos_Aires", "MSK" → "Europe/Moscow")
 
 Rules for location vs meeting_url:
 - If the message contains a Google Maps link → put ONLY the raw URL in "location" (no surrounding text)
@@ -31,12 +38,14 @@ Rules for location vs meeting_url:
 
 If no year is specified, assume the current year. If no end time, assume 1 hour after start.
 Return ONLY valid JSON, no explanation.`;
+}
 
 @injectable()
 export class AIParser implements IAIParser {
   constructor(
     @inject(TOKENS.LLMClient) private llmClient: ILLMClient,
     @inject(TOKENS.EventFactory) private eventFactory: IEventFactory,
+    @inject(TOKENS.Config) private config: IConfigService,
     @inject(TOKENS.Logger) private logger: ILogger,
   ) {}
 
@@ -45,7 +54,7 @@ export class AIParser implements IAIParser {
     let data: unknown;
     try {
       data = await this.llmClient.generateJson(
-        SYSTEM_PROMPT,
+        buildSystemPrompt(this.config.defaultTimezone),
         `Current date/time: ${now}\n\nMessage: ${text}`,
       );
     } catch (err) {

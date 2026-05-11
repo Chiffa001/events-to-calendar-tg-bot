@@ -7,5 +7,6 @@ export interface IConfigService {
   readonly googleClientSecret: string;
   readonly googleRefreshToken: string;
   readonly googleCalendarId: string;
+  readonly defaultTimezone: string;
   readonly allowedUserIds: Set<number>;
 }

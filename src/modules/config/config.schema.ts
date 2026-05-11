@@ -9,6 +9,7 @@ export const envSchema = z.object({
   GOOGLE_CLIENT_SECRET: z.string().min(1, "GOOGLE_CLIENT_SECRET is required"),
   GOOGLE_REFRESH_TOKEN: z.string().min(1, "GOOGLE_REFRESH_TOKEN is required"),
   GOOGLE_CALENDAR_ID: z.string().default("primary"),
+  DEFAULT_TIMEZONE: z.string().default("Europe/Moscow"),
   ALLOWED_USER_IDS: z.string().default(""),
 });
 
