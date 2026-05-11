@@ -118,9 +118,15 @@ ALLOWED_USER_IDS=123456789,987654321
 # Разработка (hot reload, ts-node)
 npm run dev
 
-# Продакшн (компиляция + запуск собранного бандла)
-npm run build
-npm run start:prod
+# Продакшн — собрать и запустить в Docker
+make docker-run
+```
+
+Docker собирает образ и запускает контейнер в фоне с переменными из `.env`.
+
+```bash
+make docker-logs  # смотреть логи
+make docker-stop  # остановить и удалить контейнер
 ```
 
 ## Структура проекта
